@@ -1,5 +1,8 @@
 import re
 
+'''
+   Adapted from: http://code.activestate.com/recipes/550818-words-to-numbers-english/
+'''
 class WordsToNumbers():
     """A class that can translate strings of common English words that
     describe a number into the number described

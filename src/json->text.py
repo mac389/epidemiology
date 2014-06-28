@@ -40,13 +40,13 @@ if opts.filter:
 	filenames = filter(lambda text: any([inclusion in text for inclusion in inclusions]),filenames)
 
 def extract_text(tweet_object):
-	return (tweet_object['in_reply_to_user_id'],tweet_object['text'])	
+	return (tweet_object['in_reply_to_user_id'],' '.join(tweet_object['text'].split()))	
 
 #COULD ALSO FISH OUT RECIPIENT FROM METADATA
 
 tweets = []
 bar = Bar('Extracting text from tweets',max=len(filenames))
-for filename in filenames[:2]:
+for filename in filenames:
 	try:
 		tweets.extend([extract_text(tweet_object) 
 				for tweet_object in json.load(open(os.path.join(opts.source,filename),READ))])
@@ -65,8 +65,8 @@ with open(writename,WRITE) as f:
 								if any([letter.isdigit() for letter in word]) 
 								and not any([verboten in word for verboten in ['@','http']])]
 				numeric = [filter(lambda char: char.isdigit(),x) for x in numeric]				
-				nonnumeric = [word for word in list(set(tweet[TEXT].split()) - set(numeric))
-								if not any([verboten in word for verboten in ['@','http']])]
+				nonnumeric = filter(None,map(wordnumber_parser.parse,([word for word in list(set(tweet[TEXT].split()) - set(numeric))
+								if not any([verboten in word for verboten in ['@','http']])])))
 				if numeric != [] or nonnumeric != []:
 					print>>f,' \t '.join((str(tweet[USER]) if tweet[USER] else ' ',tweet[TEXT].encode('ascii','ignore')))
 		bar.next()
