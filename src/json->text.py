@@ -3,8 +3,10 @@ from __future__ import unicode_literals
 from nltk.corpus import stopwords
 from optparse import OptionParser
 from progress.bar import Bar
+from textwrap import TextWrapper
+from string import replace
 
-import json, os
+import json, os, tweepy
 
 import words_to_nums as wordnumber
 
@@ -12,6 +14,16 @@ READ = 'rU'
 WRITE = 'wb'
 USER = 0
 TEXT = 1
+
+consumer_key = '0gU0QlrtKLlcidfyfVdH7R1qz'
+consumer_secret = '2GQ8jCjP58xu7gENWwmCTy4vVLRFsvzM2VJL1u7fHcumMqP4qA'
+access_token = '2585785981-kfCNAtFtgESI8sT3jw0AhH7qQ6UCdgk4HsWp2If'
+access_token_secret = 'PdATAHsTcnjX9gCgoCVMFcMuffTf3648JHHWC8vhSRQ7z'
+
+auth = tweepy.auth.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+api = tweepy.API(auth)
 
 wordnumber_parser = wordnumber.WordsToNumbers()
 
@@ -40,7 +52,7 @@ if opts.filter:
 	filenames = filter(lambda text: any([inclusion in text for inclusion in inclusions]),filenames)
 
 def extract_text(tweet_object):
-	return (tweet_object['in_reply_to_user_id'],' '.join(tweet_object['text'].split()))	
+	return (tweet_object['user']['screen_name'],' '.join(tweet_object['text'].split()))	
 
 #COULD ALSO FISH OUT RECIPIENT FROM METADATA
 
@@ -58,7 +70,7 @@ bar.finish()
 writename = os.path.join(opts.source,opts.output if opts.output else 'jtt')
 bar = Bar('Writing text of tweets to %s'%writename,max=len(tweets))
 with open(writename,WRITE) as f:
-	print>>f,'Recipient \t Text'
+	print>>f,'From \t Text \t '
 	for tweet in list(set(tweets)):
 		if tweet[TEXT] and tweet[TEXT].encode('ascii','ignore') and '@' in tweet[TEXT]:
 				numeric = [word for word in tweet[TEXT].split() 
