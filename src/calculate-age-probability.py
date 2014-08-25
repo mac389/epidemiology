@@ -5,26 +5,27 @@ import numpy as np
 import twokenize as Tokenizer
 
 from nltk.tokenize import word_tokenize
-from pprint import pprint
+from pprint import pprint  
 from operator import mul
 
 
 class EstimateAge(object):
 
 	def __init__(self,tweet):		
-		self.t_given_a = json.load(open('conditional_probability.json','rb'))
-		self.a_unconditional = json.load(open('age.json','rb'))
-
-		self.t_unconditional = cPickle.load(open('t_unconditional.pkl','rb'))
-		self.denominator = sum(self.t_unconditional.values())
-		#test_sentence = "i in the library"
+		self.t_given_a = json.load(open('../final-accuracy/conditional_probability.json','rb'))
+		self.a_unconditional = json.load(open('../final-accuracy/age.json','rb'))
+		self.t_unconditional = json.load(open('../final-accuracy/t_unconditional.json','rb'))
+        
+		self.denominator = sum([count for _,count in self.t_unconditional['distribution']])
+		print self.denominator
+        #test_sentence = "i in the library"
 
 		self.positive_controls = {
-			'a1318':['there is no school tomorrow','there is =/=','no school tomorrow',
-										'there is first impression','first impression','there are braces','braces'],
-			'a1922':['i on campus','on campus'],
-			'a2329':['i to work today','to work today'],
-			'a30':['i a conscious decision', 'a conscious decision','i for a lifetime']}
+            'a1318':['there is no school tomorrow','there is =/=','no school tomorrow',
+                                        'there is first impression','first impression','there are braces','braces'],
+            'a1922':['i on campus','on campus'],
+            'a2329':['i to work today','to work today'],
+            'a30':['i a conscious decision', 'a conscious decision','i for a lifetime']}
 
 		self.test_sentence = self.positive_controls['a30'][0] + ' ' + self.positive_controls['a1318'][-4]
 		self.tweet = tweet if tweet != '' else self.test_sentence
@@ -69,29 +70,6 @@ class EstimateAge(object):
 
 
 		return self.normalize(p)
-		'''
-		for n in range(1,ngram+1)[::-1]:
-			for token in itertools.combinations(tokens,n):
-				print tokens
-				token = ' '.join(token)
-				for age in self.t_given_a:
-					if token in self.t_given_a[age]:
-						#Is all of token in the string?
-						if token in self.t_unconditional:
-							p[age]= self.t_given_a[age][token]*float(self.a_unconditional[age]*self.denominator/self.t_unconditional[token])
-						else:
-							#Which words of token are in t_unconditional?
-							calculated_t_unconditional = [self.t_unconditional[word] for word in token.split() if word in self.t_unconditional]
-							if len(calculated_t_unconditional) == 0:
-								pass
-
-							else:
-								calculated_denominator = self.denominator**len(calculated_t_unconditional)			
-								calculated_t_unconditional= reduce(mul,calculated_t_unconditional)
-								p[age] = self.t_given_a[age][token]*self.a_unconditional[age]*calculated_denominator/calculated_t_unconditional
-
-		return self.normalize(p)
-		'''
 
 if __name__ == '__main__':
 	test_sentence = 'my husband : o'
