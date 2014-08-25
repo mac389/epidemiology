@@ -12,12 +12,14 @@ from operator import mul
 class EstimateAge(object):
 
 	def __init__(self,tweet):		
-		self.t_given_a = json.load(open('conditional_probability.json','rb'))
-		self.a_unconditional = json.load(open('age.json','rb'))
+		self.t_given_a = json.load(open('../final-accuracy/conditional_probability.json','rb'))
+		self.a_unconditional = json.load(open('../final-accuracy/age.json','rb'))
 
-		self.t_unconditional = cPickle.load(open('t_unconditional.pkl','rb'))
+		self.t_unconditional = json.load(open('../final-accuracy/t_unconditional_2.json','rb'))
 		self.denominator = sum(self.t_unconditional.values())
 		#test_sentence = "i in the library"
+
+		print self.denominator
 
 		self.positive_controls = {
 			'a1318':['there is no school tomorrow','there is =/=','no school tomorrow',
@@ -69,33 +71,9 @@ class EstimateAge(object):
 
 
 		return self.normalize(p)
-		'''
-		for n in range(1,ngram+1)[::-1]:
-			for token in itertools.combinations(tokens,n):
-				print tokens
-				token = ' '.join(token)
-				for age in self.t_given_a:
-					if token in self.t_given_a[age]:
-						#Is all of token in the string?
-						if token in self.t_unconditional:
-							p[age]= self.t_given_a[age][token]*float(self.a_unconditional[age]*self.denominator/self.t_unconditional[token])
-						else:
-							#Which words of token are in t_unconditional?
-							calculated_t_unconditional = [self.t_unconditional[word] for word in token.split() if word in self.t_unconditional]
-							if len(calculated_t_unconditional) == 0:
-								pass
-
-							else:
-								calculated_denominator = self.denominator**len(calculated_t_unconditional)			
-								calculated_t_unconditional= reduce(mul,calculated_t_unconditional)
-								p[age] = self.t_given_a[age][token]*self.a_unconditional[age]*calculated_denominator/calculated_t_unconditional
-
-		return self.normalize(p)
-		'''
 
 if __name__ == '__main__':
 	test_sentence = 'my husband : o'
 	test = EstimateAge(test_sentence)
 	print test.estimate_age()
 #Doesn't account for bigrams
-#Need larger sample of unconditional token distribution
