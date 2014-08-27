@@ -13,7 +13,7 @@ class EstimateAge(object):
 	def __init__(self,tweet):		
 		self.t_given_a = json.load(open('../final-accuracy/conditional_probability.json','rb'))
 		self.a_unconditional = json.load(open('../final-accuracy/age.json','rb'))
-		self.t_unconditional = cPickle.load(open('../data/t_unconditional.pkl','rb'))
+		self.t_unconditional = json.load(open('../data/truncated_t_unconditional.json','rb'))
         
 		self.denominator = sum(self.t_unconditional.values())
         #test_sentence = "i in the library"
@@ -62,19 +62,24 @@ class EstimateAge(object):
 			print ngrams
 
 		for age in self.t_given_a:
-			print 'Calculating conditional probability for %s'%age
+			if verbose:
+				print 'Calculating conditional probability for %s'%age
 			for ngram in ngrams:
 				if ngram[CONTENT] in self.t_given_a[age]:
 					if ngram[CONTENT] in self.t_unconditional:
-						print '\t token %s in %s, p(t|a) = %.02f'%(ngram[CONTENT],age,self.regression_coefficient_to_probability(self.t_given_a[age][ngram[CONTENT]]))
-						if p[age] != np.nan:
+						if verbose:
+							 print '\t token %s in %s, p(t|a) = %.02f'%(ngram[CONTENT],age,self.regression_coefficient_to_probability(self.t_given_a[age][ngram[CONTENT]]))
+						if not np.isnan(p[age]):
 							tmp = p[age]
 							tmp *= self.regression_coefficient_to_probability(self.t_given_a[age][ngram[CONTENT]])*float(self.denominator/self.t_unconditional[ngram[CONTENT]])
+							p[age]=tmp
 						else:
 							p[age]  = self.regression_coefficient_to_probability(self.t_given_a[age][ngram[CONTENT]])*float(self.denominator/self.t_unconditional[ngram[CONTENT]])
-						print p[age]
+						if verbose:
+							print 'p(a|t) =%.02f'%p[age]
 					else:
-						print '\t token %s not in %s, calculating p(t|a) by composition'%(ngram,age)
+						if verbose:
+							print '\t token %s not in %s, calculating p(t|a) by composition'%(ngram,age)
 						calculated_t_unconditional = [self.t_unconditional[word] for word in ngram[CONTENT].split() if word in self.t_unconditional and ngram[TYPE] !='EMOTICON']
 						calculated_denominator = self.denominator**len(calculated_t_unconditional)
 						if verbose:
@@ -91,13 +96,15 @@ class EstimateAge(object):
 						if len(calculated_t_unconditional) > 0:
 							token_length = len(calculated_t_unconditional)
 							calculated_t_unconditional= reduce(mul,calculated_t_unconditional,1)
-							print '\t p(%s) t | a = %.02f, a = %.02f, t=%.07f'%(ngram[CONTENT],self.regression_coefficient_to_probability(self.t_given_a[age][ngram[CONTENT]]),self.a_unconditional[age]**token_length,calculated_t_unconditional/calculated_denominator)
+							if verbose:
+								print '\t p(%s) t | a = %.02f, a = %.02f, t=%.07f'%(ngram[CONTENT],self.regression_coefficient_to_probability(self.t_given_a[age][ngram[CONTENT]]),self.a_unconditional[age]**token_length,calculated_t_unconditional/calculated_denominator)
 							p[age] = self.regression_coefficient_to_probability(self.t_given_a[age][ngram[CONTENT]])*self.a_unconditional[age]**token_length*calculated_denominator/calculated_t_unconditional
-							print '\t After calculating composition t uncondition p[%s|%s]=%.02f'%(age,ngram,p[age])
-		return p
+							if verbose:
+								print '\t After calculating composition t uncondition p[%s|%s]=%.02f'%(age,ngram,p[age])
+		return self.normalize(p)
 
 if __name__ == '__main__':
-	test_sentence = 'my husband : o'
+	test_sentence = 'i for a lifetime'
 	test = EstimateAge(test_sentence)
-	print test.estimate_age(verbose=True)
+	print test.estimate_age()
 #Need larger sample of unconditional token distribution
