@@ -2,11 +2,11 @@ import csv,os, json, itertools
 
 from pprint import pprint
 
-base = '/Volumes/My Book/Dropbox/ToxTweet/datasets/age_tweets'
+base = '../data/rated-tweets'
 READ = 'rU'
 WRITE = 'wb'
 filenames = [os.path.join(base,filename) for filename in os.listdir(base)]
-
+print filenames
 verboten = ['1','-1','']
 data = list(itertools.chain(*[[record for record in csv.DictReader(open(filename,READ)) if record['Age'] not in verboten] for filename in filenames]))
 
