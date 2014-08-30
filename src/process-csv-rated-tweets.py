@@ -11,7 +11,7 @@ verboten = ['1','-1','']
 data = list(itertools.chain(*[[record for record in csv.DictReader(open(filename,READ)) if record['Age'] not in verboten] for filename in filenames]))
 
 savename = 'tweets_with_ages.json'
-full_savename = os.path.join('../data',savename)
+full_savename = os.path.join(base,savename)
 
 
 if not os.path.isfile(full_savename):
