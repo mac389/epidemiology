@@ -1,12 +1,12 @@
 import json, datetime, os, sys 
 from TwitterAPI import TwitterAPI
 
-directory = json.load(open('../../data/directory.json','rb'))
-keys = directory['credentials']
+directory = json.load(open('../data/directory.json','rb'))
+keys = directory['twitter']
 
 query = 'schizophrenia'
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-outfile = '../../data/%s-%s'%(query,timestamp)
+outfile = '../data/%s-%s'%(query,timestamp)
 
 api = TwitterAPI(keys['consumer_key'], keys['consumer_secret'], 
 				keys['access_token'], keys['access_token_secret'])

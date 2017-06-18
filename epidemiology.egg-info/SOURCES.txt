@@ -1,0 +1,8 @@
+setup.py
+epidemiology/__init__.py
+epidemiology/twitter.py
+epidemiology.egg-info/PKG-INFO
+epidemiology.egg-info/SOURCES.txt
+epidemiology.egg-info/dependency_links.txt
+epidemiology.egg-info/not-zip-safe
+epidemiology.egg-info/top_level.txt
