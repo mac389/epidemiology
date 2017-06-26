@@ -24,3 +24,9 @@ def query(query):
 	with open(outfile,'wb') as outfile:
 		for item in r:
 			print>>outfile,json.dumps(item)
+	'''
+	 #For windows:
+	 with open(outfile,'w') as outfile:
+	 	for item in r:
+	 		outfile.write(item+'\n')
+	'''
